@@ -6,6 +6,10 @@ export const users = pgTable('users', {
   email: text('email').notNull().unique(),
   password: text('password').notNull(),
   role: text('role').notNull().default('user'),
-  created_at: text('created_at').notNull().default(() => new Date().toISOString()),
-  updated_at: text('updated_at').notNull().default(() => new Date().toISOString()),
+  created_at: text('created_at')
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
+  updated_at: text('updated_at')
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
 });

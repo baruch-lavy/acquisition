@@ -12,7 +12,7 @@ if (!dbUrl) {
 console.log('Connecting to database with URL:', dbUrl);
 
 
-const client = neon(dbUrl, neonConfig({ maxConnections: 10 }));
+const client = neon(dbUrl, new neonConfig({ maxConnections: 10 }));
 
 const db = drizzle(client);
 
