@@ -35,7 +35,7 @@ jobs:
         continue-on-error: true
 
       - name: Annotate test failures
-        if: steps.run-tests.outcome == 'failure'
+        if: failure()
         run: |
           echo "::error::One or more tests failed. Review the test output above for details."
           exit 1
