@@ -45,4 +45,15 @@ app.get('/api', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+
+app.use((req, res) => {
+  logger.warn(`404 Not Found: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({ message: 'Not Found' });
+});
+
+app.use((err, req, res, next) => {
+  logger.error('Internal Server Error:', err);
+  res.status(500).json({ message: 'Internal Server Error' });
+});
+
 export default app;

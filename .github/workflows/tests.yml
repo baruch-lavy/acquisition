@@ -1,0 +1,79 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+    branches: [main, staging]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    env:
+      NODE_ENV: test
+      NODE_OPTIONS: --experimental-vm-modules
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        id: run-tests
+        run: npm test -- --coverage --coverageReporters=text --coverageReporters=lcov --coverageReporters=json-summary
+        continue-on-error: true
+
+      - name: Annotate test failures
+        if: steps.run-tests.outcome == 'failure'
+        run: |
+          echo "::error::One or more tests failed. Review the test output above for details."
+          exit 1
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 30
+
+      - name: Generate job summary
+        if: always()
+        run: |
+          echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.run-tests.outcome }}" == "success" ]; then
+            echo "### ✅ All tests passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Tests failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f coverage/coverage-summary.json ]; then
+            echo "### 📊 Coverage Summary" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Category | % Covered |" >> $GITHUB_STEP_SUMMARY
+            echo "| -------- | --------- |" >> $GITHUB_STEP_SUMMARY
+            node -e "
+              const s = require('./coverage/coverage-summary.json').total;
+              console.log('| Statements | ' + s.statements.pct + '% |');
+              console.log('| Branches   | ' + s.branches.pct + '% |');
+              console.log('| Functions  | ' + s.functions.pct + '% |');
+              console.log('| Lines      | ' + s.lines.pct + '% |');
+            " >> $GITHUB_STEP_SUMMARY
+          else
+            echo "_Coverage data not available._" >> $GITHUB_STEP_SUMMARY
+          fi
