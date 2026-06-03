@@ -36,6 +36,7 @@ const securityMiddleware = async (req, res, next) => {
         interval: '1m',
         max: limit,
         name: `acquisition-${role}-limit`,
+        message,
       })
     );
     const decision = await client.protect(req);

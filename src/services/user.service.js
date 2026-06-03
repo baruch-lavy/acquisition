@@ -12,7 +12,7 @@ export const getAllUsers = async () => {
     }));
   } catch (error) {
     console.error('Error fetching users:', error);
-    throw new Error('Error fetching users');
+    throw new Error('Error fetching users', { cause: error });
   }
 };
 
@@ -20,7 +20,7 @@ export const getUserById = async id => {
   try {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     if (!user) {
-      throw new Error('User not found');
+      throw new Error('User not found', { cause: 'not_found' });
     }
     return {
       id: user.id,
@@ -30,10 +30,10 @@ export const getUserById = async id => {
     };
   } catch (error) {
     if (error.message === 'User not found') {
-      throw error;
+      throw new Error('User not found', { cause: error });
     }
     console.error('Error fetching user:', error);
-    throw new Error('Error fetching user');
+    throw new Error('Error fetching user', { cause: error });
   }
 };
 
@@ -41,7 +41,7 @@ export const updateUser = async (id, data) => {
   try {
     const [existingUser] = await db.select().from(users).where(eq(users.id, id));
     if (!existingUser) {
-      throw new Error('User not found');
+      throw new Error('User not found', { cause: 'not_found' });
     }
 
     const updateData = { ...data, updated_at: new Date().toISOString() };
@@ -59,10 +59,10 @@ export const updateUser = async (id, data) => {
     };
   } catch (error) {
     if (error.message === 'User not found') {
-      throw error;
+      throw new Error('User not found', { cause: error });
     }
     console.error('Error updating user:', error);
-    throw new Error('Error updating user');
+    throw new Error('Error updating user', { cause: error });
   }
 };
 
@@ -78,9 +78,9 @@ export const deleteUser = async id => {
     return { message: 'User deleted successfully' };
   } catch (error) {
     if (error.message === 'User not found') {
-      throw error;
+      throw new Error('User not found', { cause: error });
     }
     console.error('Error deleting user:', error);
-    throw new Error('Error deleting user');
+    throw new Error('Error deleting user', { cause: error });
   }
 };

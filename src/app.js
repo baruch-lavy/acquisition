@@ -51,7 +51,7 @@ app.use((req, res) => {
   res.status(404).json({ message: 'Not Found' });
 });
 
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   logger.error('Internal Server Error:', err);
   res.status(500).json({ message: 'Internal Server Error' });
 });
