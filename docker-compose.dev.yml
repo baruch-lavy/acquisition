@@ -1,0 +1,45 @@
+services:
+  # Neon Local — proxies postgres:5432 to a real (ephemeral) Neon cloud branch.
+  # The branch is created on container start and deleted on container stop.
+  # Requires NEON_API_KEY, NEON_PROJECT_ID (and optionally PARENT_BRANCH_ID) in
+  # .env.development.  See: https://neon.com/docs/local/neon-local
+  neon-local:
+    image: neondatabase/neon_local:latest
+    env_file:
+      - .env.development
+    ports:
+      - '5432:5432'
+    # Persist the ephemeral branch mapping across hot-reloads so the branch
+    # is only deleted when the container is fully removed (docker compose down).
+    volumes:
+      - ./.neon_local/:/tmp/.neon_local
+    healthcheck:
+      # Use bash's built-in TCP socket to verify port 5432 is accepting connections.
+      test: ['CMD-SHELL', 'bash -c "echo > /dev/tcp/localhost/5432" 2>/dev/null || exit 1']
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 20s
+
+  app:
+    build:
+      context: .
+      target: dev
+    env_file:
+      - .env.development
+    # These override any same-named vars from the env_file, making intent explicit.
+    environment:
+      NODE_ENV: development
+      NEON_LOCAL: 'true'
+      NEON_LOCAL_HOST: neon-local
+      NEON_LOCAL_PORT: '5432'
+      # DATABASE_URL is supplied by .env.development and points to neon-local.
+    depends_on:
+      neon-local:
+        condition: service_healthy
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./:/app          # live-reload: source edits are reflected immediately
+      - /app/node_modules  # keep container's node_modules isolated from host
+    command: npm run dev

@@ -2,7 +2,11 @@ node_modules
 dist
 coverage
 *.log
+.env
 .env.*
+# Allow example env files so developers can bootstrap quickly
+!.env.*.example
+.neon_local/
 .DS_Store
 .idea
 .vscode

@@ -9,11 +9,18 @@ if (!dbUrl) {
   throw new Error('DATABASE_URL is not defined in environment variables');
 }
 
-console.log('Connecting to database with URL:', dbUrl);
+const isProduction = process.env.NODE_ENV === 'production';
+const isNeonLocal = process.env.NEON_LOCAL === 'true';
+if (!isProduction && isNeonLocal) {
+  const neonLocalHost = process.env.NEON_LOCAL_HOST || 'neon-local';
+  const neonLocalPort = process.env.NEON_LOCAL_PORT || '5432';
 
+  neonConfig.fetchEndpoint = `http://${neonLocalHost}:${neonLocalPort}/sql`;
+  neonConfig.useSecureWebSocket = false;
+  neonConfig.poolQueryViaFetch = true;
+}
 
-const client = neon(dbUrl, new neonConfig({ maxConnections: 10 }));
-
+const client = neon(dbUrl);
 const db = drizzle(client);
 
 export { client, db };

@@ -1,0 +1,20 @@
+services:
+  # Neon Cloud is managed outside this Compose stack.
+  # DATABASE_URL in .env.production must point to your Neon cloud endpoint.
+  app:
+    build:
+      context: .
+      target: prod
+    env_file:
+      - .env.production
+    # These override any same-named vars from the env_file, making intent explicit.
+    environment:
+      NODE_ENV: production
+      NEON_LOCAL: 'false'
+    ports:
+      - '3000:3000'
+    restart: unless-stopped
+    # Run pending migrations before starting the server.
+    # Remove the migrate step if you handle migrations in your CI/CD pipeline.
+    command: >
+      sh -c "npx drizzle-kit migrate && npm start"
