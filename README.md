@@ -2,19 +2,19 @@
 
 This project uses **[Neon](https://neon.tech)** as its Postgres database. The Docker setup is split into two environments:
 
-| Environment | Database | Compose file |
-|---|---|---|
-| **Development** | Neon Local proxy → ephemeral Neon cloud branch | `docker-compose.dev.yml` |
-| **Production** | Neon Cloud directly (no proxy) | `docker-compose.prod.yml` |
+| Environment     | Database                                       | Compose file              |
+| --------------- | ---------------------------------------------- | ------------------------- |
+| **Development** | Neon Local proxy → ephemeral Neon cloud branch | `docker-compose.dev.yml`  |
+| **Production**  | Neon Cloud directly (no proxy)                 | `docker-compose.prod.yml` |
 
 ---
 
 ## How `DATABASE_URL` switches between environments
 
-| File | `DATABASE_URL` points to |
-|---|---|
+| File               | `DATABASE_URL` points to                                                                                   |
+| ------------------ | ---------------------------------------------------------------------------------------------------------- |
 | `.env.development` | `postgres://neon:npg@neon-local:5432/neondb?sslmode=require` (Neon Local proxy inside the Compose network) |
-| `.env.production` | Your real Neon cloud pooled endpoint |
+| `.env.production`  | Your real Neon cloud pooled endpoint                                                                       |
 
 `src/config/database.js` reads `NEON_LOCAL=true` in development and reconfigures the Neon serverless driver to route HTTP queries through the local proxy:
 
@@ -48,12 +48,12 @@ cp .env.development.example .env.development
 
 Edit `.env.development` and supply:
 
-| Variable | Where to find it |
-|---|---|
-| `NEON_API_KEY` | [Neon Console → Account → API Keys](https://console.neon.tech/app/settings/api-keys) |
-| `NEON_PROJECT_ID` | Neon Console → your project → **Settings → General** |
-| `PARENT_BRANCH_ID` | *(optional)* Branch ID to fork from. Leave blank to use the project's primary branch. |
-| `ARCJET_KEY` | Your Arcjet developer key |
+| Variable           | Where to find it                                                                      |
+| ------------------ | ------------------------------------------------------------------------------------- |
+| `NEON_API_KEY`     | [Neon Console → Account → API Keys](https://console.neon.tech/app/settings/api-keys)  |
+| `NEON_PROJECT_ID`  | Neon Console → your project → **Settings → General**                                  |
+| `PARENT_BRANCH_ID` | _(optional)_ Branch ID to fork from. Leave blank to use the project's primary branch. |
+| `ARCJET_KEY`       | Your Arcjet developer key                                                             |
 
 > The `DATABASE_URL` in `.env.development` is already pre-filled to connect to the `neon-local` service inside the Compose network — **do not change it**.
 
@@ -108,10 +108,10 @@ cp .env.production.example .env.production
 
 Edit `.env.production`:
 
-| Variable | Description |
-|---|---|
+| Variable       | Description                                                                                 |
+| -------------- | ------------------------------------------------------------------------------------------- |
 | `DATABASE_URL` | Your Neon **pooled** connection string (Dashboard → Connection Details → Pooled connection) |
-| `ARCJET_KEY` | Your production Arcjet key |
+| `ARCJET_KEY`   | Your production Arcjet key                                                                  |
 
 > **Never commit `.env.production`.** In CI/CD, inject these as secrets (GitHub Actions secrets, AWS Secrets Manager, etc.) instead of using a file.
 
@@ -122,6 +122,7 @@ docker compose -f docker-compose.prod.yml up --build -d
 ```
 
 The container will:
+
 1. Run `npx drizzle-kit migrate` to apply any pending migrations.
 2. Start the Express server with `npm start`.
 
@@ -143,24 +144,24 @@ docker compose -f docker-compose.prod.yml down
 
 ### Shared variables
 
-| Variable | Description | Default |
-|---|---|---|
-| `PORT` | HTTP port the Express server listens on | `3000` |
-| `NODE_ENV` | `development` or `production` | — |
-| `LOG_LEVEL` | Winston log level (`debug`, `info`, `warn`, `error`) | `info` |
-| `DATABASE_URL` | Postgres connection string | — |
-| `ARCJET_KEY` | Arcjet security key | — |
+| Variable       | Description                                          | Default |
+| -------------- | ---------------------------------------------------- | ------- |
+| `PORT`         | HTTP port the Express server listens on              | `3000`  |
+| `NODE_ENV`     | `development` or `production`                        | —       |
+| `LOG_LEVEL`    | Winston log level (`debug`, `info`, `warn`, `error`) | `info`  |
+| `DATABASE_URL` | Postgres connection string                           | —       |
+| `ARCJET_KEY`   | Arcjet security key                                  | —       |
 
 ### Development-only (Neon Local)
 
-| Variable | Description |
-|---|---|
-| `NEON_API_KEY` | Neon API key — used by the `neon-local` container |
-| `NEON_PROJECT_ID` | Neon project ID — used by the `neon-local` container |
-| `PARENT_BRANCH_ID` | Branch to fork from; omit to use the primary branch |
-| `NEON_LOCAL` | Set to `true` to enable the Neon Local driver shim in `database.js` |
-| `NEON_LOCAL_HOST` | Hostname of the `neon-local` service (`neon-local`) |
-| `NEON_LOCAL_PORT` | Port of the `neon-local` service (`5432`) |
+| Variable           | Description                                                         |
+| ------------------ | ------------------------------------------------------------------- |
+| `NEON_API_KEY`     | Neon API key — used by the `neon-local` container                   |
+| `NEON_PROJECT_ID`  | Neon project ID — used by the `neon-local` container                |
+| `PARENT_BRANCH_ID` | Branch to fork from; omit to use the primary branch                 |
+| `NEON_LOCAL`       | Set to `true` to enable the Neon Local driver shim in `database.js` |
+| `NEON_LOCAL_HOST`  | Hostname of the `neon-local` service (`neon-local`)                 |
+| `NEON_LOCAL_PORT`  | Port of the `neon-local` service (`5432`)                           |
 
 ---
 

@@ -39,7 +39,10 @@ export const getUserById = async id => {
 
 export const updateUser = async (id, data) => {
   try {
-    const [existingUser] = await db.select().from(users).where(eq(users.id, id));
+    const [existingUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, id));
     if (!existingUser) {
       throw new Error('User not found', { cause: 'not_found' });
     }

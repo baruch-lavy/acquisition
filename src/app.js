@@ -29,13 +29,11 @@ app.get('/', (req, res) => {
 
 app.get('/health', (req, res) => {
   logger.info('Received request for /health');
-  res
-    .status(200)
-    .json({
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-    });
+  res.status(200).json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
 });
 
 app.get('/api', (req, res) => {

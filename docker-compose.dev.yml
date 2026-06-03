@@ -15,7 +15,11 @@ services:
       - ./.neon_local/:/tmp/.neon_local
     healthcheck:
       # Use bash's built-in TCP socket to verify port 5432 is accepting connections.
-      test: ['CMD-SHELL', 'bash -c "echo > /dev/tcp/localhost/5432" 2>/dev/null || exit 1']
+      test:
+        [
+          'CMD-SHELL',
+          'bash -c "echo > /dev/tcp/localhost/5432" 2>/dev/null || exit 1',
+        ]
       interval: 5s
       timeout: 5s
       retries: 15
@@ -40,6 +44,6 @@ services:
     ports:
       - '3000:3000'
     volumes:
-      - ./:/app          # live-reload: source edits are reflected immediately
-      - /app/node_modules  # keep container's node_modules isolated from host
+      - ./:/app # live-reload: source edits are reflected immediately
+      - /app/node_modules # keep container's node_modules isolated from host
     command: npm run dev
