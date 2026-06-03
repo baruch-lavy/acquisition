@@ -25,7 +25,9 @@
     "db:studio": "drizzle-kit studio",
     "db:push": "drizzle-kit push",
     "db:pull": "drizzle-kit pull",
-    "db:reset": "drizzle-kit reset"
+    "db:reset": "drizzle-kit reset",
+    "dev:docker": "sh scripts/dev.sh",
+    "prod:docker": "sh scripts/prod.sh"
   },
   "repository": {
     "type": "git",

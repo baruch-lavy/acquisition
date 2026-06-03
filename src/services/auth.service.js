@@ -73,7 +73,6 @@ export const authenticateUser = async (email, password) => {
 export const createUser = async userData => {
   try {
     const { name, email, password, role } = userData;
-    console.log('Creating user with data:', { name, email, password, role });
     const now = new Date().toISOString();
     const [existingUser] = await db
       .select()
